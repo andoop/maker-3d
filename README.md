@@ -9,6 +9,10 @@
 | [`threejs-workbench/`](./threejs-workbench/) | Three.js 模型工作台 | 浏览器版积木模型编辑器，支持多形状、多材质、精确变换、模型库以及 JSON 导入导出。 |
 | [`floating-island-maker/`](./floating-island-maker/) | 我的空岛 | TapTap Maker 完整项目，包含空岛建设、模型工作台、模型市场、探索与第一人称漫游。 |
 
+## Three.js 工作台预览
+
+![Three.js 模型工作台界面](./docs/assets/threejs-workbench.png)
+
 ## 快速开始
 
 ### Three.js 模型工作台
