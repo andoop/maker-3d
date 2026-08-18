@@ -34,6 +34,14 @@ python3 -m http.server 8080
 lua generate-model-library.lua ../floating-island-maker model-library.json
 ```
 
+## 支持作者
+
+项目免费开放，使用不设限制。如果它恰好帮到了你，也欢迎请作者喝杯咖啡，支持后续维护和创作。完全自愿，感谢喜欢。
+
+<p align="center">
+  <img src="./docs/assets/wechat-support.jpg" alt="微信打赏码" width="320">
+</p>
+
 ## 开放协议
 
 本仓库采用 **CC0 1.0 Universal**。在法律允许的最大范围内，项目作者放弃对本仓库原创代码、模型、纹理、界面与数据的版权和相关权利。
