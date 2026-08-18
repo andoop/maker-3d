@@ -1,0 +1,51 @@
+{
+  "$schema": "../schemas/project.schema.json",
+  "project_id": "p_m5tc",
+  "author": {
+    "id": "679301503"
+  },
+  "entry": "main.lua",
+  "version": "2.3.114",
+  "taptap_publish": {
+    "title": "云岛造物工坊",
+    "description": "在明亮绘本风的云上群岛中自由建设、布置与漫游。你可以使用内置树木、路灯、山包、高楼、街景小品等素材快速搭建海岛，也可以进入模型工作台，用积木化组件定制专属建筑和装饰，并将作品保存、收藏、再创作或发布到模型市场。支持多座海岛独立存档、第一人称预览和跨端云端保存。",
+    "category": "simulation",
+    "screen_orientation": "landscape",
+    "collection_type": "sce",
+    "trial_note": "v2.3.0 按统一比例重新生成全部素材：建筑入口、层高、家具、道路、桥梁、水域、森林和山体均以 0.70 米第一人称角色为尺度基准；80 套模型切换到全新 adventure 命名空间，并增加屋瓦、檐口、灯具、榫钉、路径、岩层和遗迹刻印。18 种材质纹理也重新绘制为与当前空岛一致的明亮绘本风。",
+    "transparent": false,
+    "app_platforms": "1,2",
+    "developer_id": 416855,
+    "app_id": 885435,
+    "miniapp_id": "tapmc1gtds0oe3obef",
+    "gameplay_demo_video_source": "https://tapcode-sce.spark.xd.com/videos/p_m5tc/1784563744228-rec_179fce95-5924-48cc-b256-593a068a7af7.mp4"
+  },
+  "assets": {
+    "icon": "./game_material/icon.png",
+    "screenshots": [
+      "./game_material/SCREENSHOT_2026-07-20T15-56-13_01.jpg",
+      "./game_material/SCREENSHOT_2026-07-20T15-56-13_02.png",
+      "./game_material/SCREENSHOT_2026-07-20T15-56-13_03.jpg"
+    ],
+    "promotional_image": "./game_material/PROMO_2026-07-20T15-56-13_01.jpg",
+    "icon_url": "https://tapcode-sce.spark.xd.com/assets/game_material/p_m5tc/icon.png",
+    "screenshot_urls": [
+      "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/SCREENSHOT_2026-07-20T15-56-13_01.jpg",
+      "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/SCREENSHOT_2026-07-20T15-56-13_02.png",
+      "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/SCREENSHOT_2026-07-20T15-56-13_03.jpg"
+    ],
+    "promotional_image_url": "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/PROMO_2026-07-20T15-56-13_01.jpg",
+    "cover_vertical": "./.project/game_material/COVER_VERTICAL_2026-07-20T16-15-52_01.png",
+    "cover_vertical_url": "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/COVER_VERTICAL_2026-07-20T16-15-52_01.png",
+    "cover_horizontal": "./.project/game_material/COVER_HORIZONTAL_2026-07-20T16-15-52_01.png",
+    "cover_horizontal_url": "https://tapcode-sce.spark.xd.com/assets/game_material/云岛造物工坊/COVER_HORIZONTAL_2026-07-20T16-15-52_01.png"
+  },
+  "metadata": {
+    "updated_at": "2026-08-05T12:38:49.023Z",
+    "promo_dependent_hash": "c7f054dfeebb2fcad3194d72ae985364"
+  },
+  "test_qrcode": {
+    "url": "https://tapcode-sce.spark.xd.com/qrcode/p_m5tc_1785933528886.png",
+    "generated_at": "2026-08-05T12:38:49.023Z"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "entries": [
+    {
+      "source": "https://tapcode-sce.spark.xd.com/videos/p_m5tc/1784294532387-rec_1fd1553d-43cb-4d61-a803-c13d58ea86a6.mp4",
+      "source_type": "remote",
+      "video_id": 5775411,
+      "sha256": "86ff467d5f3260bc9e6f931c40e672775392494bc8f96df23bf851fd890ac316",
+      "etag": "\"4E463D63C877A47B478C8A93BC43405B\"",
+      "last_modified": "Fri, 17 Jul 2026 13:22:23 GMT",
+      "content_length": 136667662
+    },
+    {
+      "source": "https://tapcode-sce.spark.xd.com/videos/p_m5tc/1784298076174-rec_bc87b833-7311-4f83-90dd-b7ebf3dba20b.mp4",
+      "source_type": "remote",
+      "video_id": 5775548,
+      "sha256": "4b5dbff38ce9c67d953a4921aa24576e57919fa86b40e826d9bf44ed4b671d2c",
+      "etag": "\"4EF104BBCF87A86A147851F481AA685A\"",
+      "last_modified": "Fri, 17 Jul 2026 14:21:44 GMT",
+      "content_length": 78128832
+    },
+    {
+      "source": "https://tapcode-sce.spark.xd.com/videos/p_m5tc/1784563744228-rec_179fce95-5924-48cc-b256-593a068a7af7.mp4",
+      "source_type": "remote",
+      "video_id": 5781094,
+      "sha256": "029192a7186bcd8784c5b5d0691ea6277bde87a7a65569d02fc558e83a9740ce",
+      "etag": "\"6A766EA65B80E7DEDA1436605E3F9E84\"",
+      "last_modified": "Mon, 20 Jul 2026 16:09:30 GMT",
+      "content_length": 71021461
+    }
+  ]
+}

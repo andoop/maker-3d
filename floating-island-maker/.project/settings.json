@@ -1,0 +1,55 @@
+{
+  "$schema": "../schemas/settings.schema.json",
+  "sources": {
+    "engine": {
+      "tag": "stable"
+    },
+    "engine-res": {
+      "tag": "stable"
+    },
+    "official-res": {
+      "tag": "stable"
+    }
+  },
+  "build": {
+    "generate_fs_path": true,
+    "output_dir": "../dist",
+    "asset_dirs": [
+      "../assets",
+      "../scripts"
+    ],
+    "asset_ignores": []
+  },
+  "@runtime": {
+    "orientation": "landscape",
+    "multiplayer": {
+      "enabled": false,
+      "max_players": 2,
+      "background_match": false,
+      "match_info": {
+        "desc_name": "free_match",
+        "immediately_start": true,
+        "match_timeout": 30,
+        "player_number": 1
+      },
+      "persistent_world": {
+        "enabled": false
+      }
+    },
+    "ad": {
+      "status": 1,
+      "ad_spaces": [
+        {
+          "id": "1054323",
+          "type": 1
+        },
+        {
+          "id": "1054324",
+          "type": 2
+        }
+      ],
+      "top_on_placements": [],
+      "synced_at": "2026-07-17T10:34:38.644Z"
+    }
+  }
+}

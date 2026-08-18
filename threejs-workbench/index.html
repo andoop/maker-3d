@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>我的海岛 · 3D 积木工作台</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --ink: #203f4c;
+      --muted: #6d8790;
+      --line: #c6dadd;
+      --panel: rgba(255, 250, 238, .95);
+      --surface: #fffdf7;
+      --surface-soft: #edf8f4;
+      --rail: #fff5dc;
+      --blue: #287ca1;
+      --blue-dark: #145b7a;
+      --accent: #efa942;
+      --accent-soft: #fff0b9;
+      --danger: #b9584d;
+      --shadow: rgba(38, 72, 84, .16);
+    }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; color: var(--ink); background: #dcebee; }
+    button, input, select { font: inherit; color: inherit; }
+    button {
+      min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--surface); cursor: pointer; font-weight: 800; transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    button:hover { border-color: #79aebd; background: #f5fbf9; transform: translateY(-1px); }
+    button:active { transform: translateY(0) scale(.98); }
+    button.active { color: #fff; border-color: var(--blue); background: var(--blue); }
+    button.danger { color: var(--danger); background: #fff6f2; border-color: #e3b8af; }
+    button:disabled { opacity: .42; cursor: default; transform: none; }
+    input, select { width: 100%; height: 34px; border: 1px solid var(--line); border-radius: 9px; background: white; padding: 0 8px; }
+    input:focus, select:focus { outline: 2px solid rgba(40, 124, 161, .2); border-color: var(--blue); }
+    input[type="color"] { padding: 3px; }
+    input[type="range"] { padding: 0; }
+    label { display: block; font-size: 11px; color: var(--muted); }
+    label input, label select { margin-top: 4px; color: var(--ink); }
+    .app { display: grid; grid-template-rows: 60px minmax(0, 1fr) 28px; width: 100%; height: 100%; }
+    .topbar {
+      display: flex; align-items: center; gap: 8px; min-width: 0; padding: 8px 16px;
+      border-bottom: 2px solid var(--line); background: rgba(255, 248, 231, .96); backdrop-filter: blur(16px); z-index: 20;
+      box-shadow: 0 5px 16px rgba(48, 76, 88, .08);
+    }
+    .brand-group { display: flex; align-items: center; gap: 9px; min-width: 214px; margin-right: 4px; }
+    .brand-icon { display: grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; border: 2px solid var(--accent); border-radius: 50%; background: var(--accent-soft); color: var(--blue-dark); font-weight: 950; }
+    .brand-copy { min-width: 0; }
+    .brand { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 950; }
+    .version { margin-top: 2px; font-size: 10px; color: var(--blue); font-weight: 850; }
+    .spacer { flex: 1; }
+    .topbar .view-actions { display: flex; gap: 5px; }
+    .topbar .view-actions button { min-height: 32px; padding: 0 8px; font-size: 11px; }
+    .workspace { position: relative; min-height: 0; overflow: hidden; }
+    #viewport {
+      position: absolute; inset: 0; overflow: hidden; background-color: #eaf5f7;
+      background-image: linear-gradient(45deg, rgba(181, 210, 216, .28) 25%, transparent 25%), linear-gradient(-45deg, rgba(181, 210, 216, .28) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(181, 210, 216, .28) 75%), linear-gradient(-45deg, transparent 75%, rgba(181, 210, 216, .28) 75%);
+      background-size: 22px 22px; background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+    }
+    #viewport canvas { display: block; width: 100%; height: 100%; }
+    #referenceOverlay { position: absolute; inset: 50% auto auto 50%; width: min(70%, 615px); max-height: 86%; object-fit: contain; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; z-index: 3; }
+    .tool-rail, .context-dock {
+      position: absolute; z-index: 10; border: 2px solid var(--line); background: var(--panel); box-shadow: 0 8px 24px var(--shadow); backdrop-filter: blur(14px);
+    }
+    .tool-rail {
+      left: 12px; top: 14px; bottom: 14px; width: 116px; padding: 12px 10px; border-radius: 16px;
+      display: flex; flex-direction: column; gap: 7px; overflow: auto;
+    }
+    .rail-label { margin: 2px 0 1px; text-align: center; font-size: 9px; font-weight: 950; color: var(--muted); letter-spacing: .06em; }
+    .tool-rail button { width: 100%; min-height: 38px; padding: 0 5px; font-size: 11px; }
+    .rail-divider { height: 1px; flex: 0 0 auto; margin: 4px 0; background: var(--line); }
+    .context-dock {
+      right: 12px; top: 14px; bottom: 14px; width: 344px; border-radius: 18px; overflow: hidden;
+      display: grid; grid-template-rows: 58px 48px minmax(0, 1fr);
+    }
+    .dock-header { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-bottom: 1px solid var(--line); background: var(--rail); }
+    .dock-mark { display: grid; place-items: center; width: 25px; height: 25px; flex: 0 0 auto; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-weight: 950; }
+    .dock-title { font-size: 12px; font-weight: 950; }
+    .dock-subtitle { margin-top: 2px; font-size: 9px; color: var(--muted); }
+    .dock-version { margin-left: auto; color: var(--blue); font-size: 10px; font-weight: 900; }
+    #closeDock, #mobilePanelToggle { display: none; }
+    .panel-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 8px; border-bottom: 1px solid var(--line); background: var(--surface-soft); }
+    .panel-tabs button { min-width: 0; min-height: 30px; padding: 0 2px; border-radius: 8px; font-size: 10px; }
+    .panel-pages { min-height: 0; overflow: hidden; background: var(--panel); }
+    .panel-page { height: 100%; overflow: auto; padding: 12px; }
+    .section { margin-bottom: 16px; }
+    .section:last-child { margin-bottom: 0; }
+    .section h2 { margin: 0 0 8px; font-size: 12px; }
+    .section-card { padding: 10px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.62); }
+    .hint { margin: 7px 0 0; font-size: 11px; line-height: 1.55; color: var(--muted); }
+    .row { display: flex; gap: 7px; align-items: center; }
+    .row > * { min-width: 0; flex: 1; }
+    .preset-grid, .view-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .choice-button { display: flex; align-items: center; justify-content: flex-start; gap: 7px; min-width: 0; min-height: 34px; padding: 4px 7px; text-align: left; font-size: 10px; }
+    .choice-button .preview { width: 22px; height: 22px; flex: 0 0 auto; border: 1px solid rgba(32,63,76,.16); border-radius: 7px; background: var(--preview, #eee); box-shadow: inset 0 0 0 1px rgba(255,255,255,.34); }
+    .choice-button .shape-icon { display: grid; place-items: center; width: 22px; height: 22px; flex: 0 0 auto; border-radius: 7px; background: var(--surface-soft); color: var(--blue-dark); font-size: 13px; }
+    .choice-button span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .field-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .swatch { min-width: 0; height: 31px; padding: 0; border-radius: 8px; border: 2px solid rgba(35, 64, 73, .13); }
+    .swatch.active { outline: 2px solid var(--blue); outline-offset: 1px; }
+    .selection-hud { position: absolute; z-index: 8; left: 144px; top: 14px; display: flex; align-items: center; gap: 7px; pointer-events: none; }
+    .selection-badge { max-width: 420px; padding: 8px 11px; border: 2px solid rgba(44, 93, 110, .18); border-radius: 12px; background: rgba(255,255,255,.92); box-shadow: 0 4px 12px var(--shadow); font-size: 11px; font-weight: 800; }
+    .selection-hud button { pointer-events: auto; min-height: 34px; border-color: var(--blue); }
+    .object-list { display: grid; gap: 6px; }
+    .object-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 34px; text-align: left; font-weight: 700; }
+    .object-item span:last-child { color: var(--muted); font-size: 10px; }
+    .template-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .template-heading h2 { margin: 0; }
+    .template-summary { color: var(--muted); font-size: 9px; font-weight: 800; }
+    .template-categories { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }
+    .template-categories button { min-height: 27px; padding-inline: 8px; border-radius: 8px; font-size: 9px; }
+    .template-list { display: grid; gap: 7px; }
+    .template-card { display: grid; grid-template-columns: 48px minmax(0,1fr) auto; gap: 8px; align-items: center; min-height: 64px; padding: 7px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+    .template-preview { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(145deg, var(--preview-a, #bfe5ef), var(--preview-b, #f9ecc6)); color: var(--blue-dark); font-size: 21px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
+    .template-preview small { position: absolute; right: 3px; bottom: 2px; padding: 1px 4px; border-radius: 6px; background: rgba(255,255,255,.82); color: var(--ink); font-size: 7px; font-weight: 900; }
+    .template-copy { min-width: 0; }
+    .template-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 950; }
+    .template-meta { margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--blue-dark); font-size: 9px; font-weight: 800; }
+    .template-description { margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 8px; }
+    .template-card > button { min-height: 31px; padding-inline: 8px; background: var(--accent-soft); border-color: var(--accent); font-size: 9px; }
+    .template-empty { padding: 20px 10px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; font-size: 10px; }
+    .footer { display: flex; align-items: center; gap: 14px; padding: 0 12px; border-top: 1px solid var(--line); background: rgba(255,248,231,.97); color: var(--muted); font-size: 10px; }
+    #status { color: var(--ink); font-weight: 800; white-space: nowrap; }
+    .footer .shortcut-copy { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 1050px) {
+      .brand-group { min-width: 176px; }
+      .topbar { padding-inline: 10px; gap: 6px; }
+      .topbar > button { padding-inline: 7px; }
+      .topbar .view-actions { display: none; }
+      .context-dock { width: 320px; }
+    }
+    @media (max-width: 760px) {
+      .app { grid-template-rows: 54px minmax(0, 1fr); }
+      .topbar { overflow-x: auto; }
+      .brand-group { min-width: 150px; }
+      .brand { font-size: 11px; }
+      .topbar .spacer, .footer { display: none; }
+      .workspace { min-height: 0; }
+      .tool-rail { left: 8px; right: 8px; top: auto; bottom: 8px; width: auto; height: 56px; padding: 7px; flex-direction: row; overflow-x: auto; border-radius: 15px; }
+      .tool-rail .rail-label, .tool-rail .rail-divider { display: none; }
+      .tool-rail button { min-width: 48px; width: auto; height: 38px; padding-inline: 3px; font-size: 9px; flex: 1 0 48px; }
+      .desktop-key { display: none; }
+      #mobilePanelToggle, #closeDock { display: block; }
+      .context-dock { left: 8px; right: auto; top: 8px; bottom: 72px; width: min(82vw, 344px); transition: transform .2s ease, opacity .16s ease; }
+      .context-dock.mobile-closed { transform: translateX(calc(-100% - 16px)); opacity: 0; pointer-events: none; }
+      #closeDock { margin-left: 0; min-height: 30px; padding-inline: 7px; font-size: 9px; }
+      .selection-hud { left: auto; right: 8px; top: 8px; max-width: 180px; flex-direction: column; align-items: flex-end; }
+      .selection-hud.panel-open { display: none; }
+      .selection-badge { max-width: 180px; }
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand-group">
+        <div class="brand-icon">模</div>
+        <div class="brand-copy">
+          <div class="brand">模型工作台 · 我的海岛模型</div>
+          <div class="version">HTML 工作台 v3.2.0</div>
+        </div>
+      </div>
+      <button id="newProject">新建</button>
+      <button id="saveLocal">保存</button>
+      <button id="undo" title="撤销 Ctrl/⌘+Z">撤销</button>
+      <button id="redo" title="重做 Ctrl/⌘+Y">重做</button>
+      <div class="spacer"></div>
+      <div class="view-actions">
+        <button data-view="iso">等轴</button>
+        <button data-view="front">正面</button>
+        <button data-view="right">右侧</button>
+        <button data-view="top">顶部</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <section id="viewport" aria-label="3D 编辑视口">
+        <img id="referenceOverlay" src="./assets/image/mykonos/house.png" alt="参考原图" />
+      </section>
+
+      <div class="selection-hud">
+        <div class="selection-badge" id="selectionBadge">未选择积木 · 选择工具只显示轮廓</div>
+        <button id="duplicateQuick" class="hidden">复制到旁边</button>
+      </div>
+
+      <aside class="tool-rail" aria-label="编辑工具">
+        <div class="rail-label">选择与放置</div>
+        <button data-mode="select" class="active">选择<span class="desktop-key"> V</span></button>
+        <button data-mode="add">放置<span class="desktop-key"> B</span></button>
+        <button data-mode="delete" class="danger">拆除<span class="desktop-key"> X</span></button>
+        <button id="focusSelected">聚焦<span class="desktop-key"> F</span></button>
+        <div class="rail-divider"></div>
+        <div class="rail-label">选中后变换</div>
+        <button data-transform="translate">移动<span class="desktop-key"> W</span></button>
+        <button data-transform="rotate">旋转<span class="desktop-key"> E</span></button>
+        <button data-transform="scale">缩放<span class="desktop-key"> R</span></button>
+        <button id="mobilePanelToggle">面板</button>
+      </aside>
+
+      <aside class="context-dock" aria-label="编辑面板">
+        <header class="dock-header">
+          <div class="dock-mark">✦</div>
+          <div>
+            <div class="dock-title">编辑面板</div>
+            <div class="dock-subtitle">选择、创建与管理模型组件</div>
+          </div>
+          <div class="dock-version">v3.2</div>
+          <button id="closeDock">关闭</button>
+        </header>
+
+        <nav class="panel-tabs" aria-label="编辑面板分类">
+          <button data-panel-tab="properties" class="active">属性</button>
+          <button data-panel-tab="build">新组件</button>
+          <button data-panel-tab="layers">图层</button>
+          <button data-panel-tab="templates">模型库</button>
+          <button data-panel-tab="project">工程</button>
+        </nav>
+
+        <div class="panel-pages">
+          <section class="panel-page" data-panel="properties">
+            <div class="section">
+              <h2>实时属性</h2>
+              <div id="noSelection" class="section-card hint">未选择积木。先使用“选择 V”点击积木；需要坐标轴时，再点左侧的移动、旋转或缩放。</div>
+              <div id="inspector" class="hidden">
+                <div class="section-card">
+                  <label>名称<input id="selectedName" type="text" /></label>
+                  <h2 style="margin-top:12px">位置</h2>
+                  <div class="field-grid">
+                    <label>X<input id="posX" type="number" step="0.05" /></label>
+                    <label>Y<input id="posY" type="number" step="0.05" /></label>
+                    <label>Z<input id="posZ" type="number" step="0.05" /></label>
+                  </div>
+                  <h2 style="margin-top:12px">旋转角度</h2>
+                  <div class="field-grid">
+                    <label>X°<input id="rotX" type="number" step="1" /></label>
+                    <label>Y°<input id="rotY" type="number" step="1" /></label>
+                    <label>Z°<input id="rotZ" type="number" step="1" /></label>
+                  </div>
+                  <button id="resetRotation" style="width:100%; margin-top:8px">旋转回正 0°</button>
+                  <h2 style="margin-top:12px">尺寸</h2>
+                  <div class="field-grid">
+                    <label>宽<input id="sizeX" type="number" min="0.05" step="0.05" /></label>
+                    <label>高<input id="sizeY" type="number" min="0.05" step="0.05" /></label>
+                    <label>深<input id="sizeZ" type="number" min="0.05" step="0.05" /></label>
+                  </div>
+                  <h2 style="margin-top:12px">形状</h2>
+                  <div id="selectedShapes" class="choice-grid"></div>
+                  <h2 style="margin-top:12px">材质</h2>
+                  <div id="selectedMaterials" class="choice-grid"></div>
+                  <label style="margin-top:9px">颜色<input id="selectedColor" type="color" /></label>
+                  <p class="hint">属性修改后立即生效，不需要额外点击应用。</p>
+                  <div class="row" style="margin-top:10px">
+                    <button id="duplicateSelected">复制到旁边</button>
+                    <button id="deleteSelected" class="danger">删除</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-page hidden" data-panel="build">
+            <div class="section">
+              <h2>基础形状</h2>
+              <div id="newShapes" class="choice-grid"></div>
+            </div>
+            <div class="section">
+              <h2>积木预设</h2>
+              <div class="preset-grid">
+                <button data-preset="story_cube" class="active">绘本砖</button>
+                <button data-preset="half">半格方块</button>
+                <button data-preset="detail">精细砖</button>
+                <button data-preset="micro">微型零件</button>
+                <button data-preset="slab">草地薄板</button>
+                <button data-preset="step">冒险台阶</button>
+                <button data-preset="trim">彩绘收边</button>
+                <button data-preset="beam">木梁</button>
+                <button data-preset="wall">门窗墙片</button>
+                <button data-preset="low_wall">矮墙</button>
+                <button data-preset="column">圆润立柱</button>
+                <button data-preset="terrain">地形单元</button>
+              </div>
+            </div>
+            <div class="section section-card">
+              <h2>新积木尺寸</h2>
+              <div class="field-grid">
+                <label>宽 X<input id="newSizeX" type="number" min="0.05" step="0.05" value="1" /></label>
+                <label>高 Y<input id="newSizeY" type="number" min="0.05" step="0.05" value="1" /></label>
+                <label>深 Z<input id="newSizeZ" type="number" min="0.05" step="0.05" value="1" /></label>
+              </div>
+            </div>
+            <div class="section">
+              <h2>新积木材质</h2>
+              <div id="newMaterials" class="choice-grid"></div>
+            </div>
+            <div class="section">
+              <h2>新积木颜色</h2>
+              <div class="swatches" id="swatches"></div>
+              <label style="margin-top:8px">自定义颜色<input id="newColor" type="color" value="#f3efe7" /></label>
+            </div>
+            <div class="section">
+              <h2>仅放置吸附</h2>
+              <select id="snapSize">
+                <option value="1">1 格</option>
+                <option value="0.5">1/2 格</option>
+                <option value="0.25" selected>1/4 格</option>
+                <option value="0.1">0.1 格</option>
+                <option value="0">自由位置</option>
+              </select>
+              <p class="hint">点击已有积木表面时，新积木会优先与目标中心对齐并贴合。</p>
+            </div>
+          </section>
+
+          <section class="panel-page hidden" data-panel="layers">
+            <div class="section">
+              <h2>场景对象 <span id="objectCount"></span></h2>
+              <div id="objectList" class="object-list"></div>
+            </div>
+          </section>
+
+          <section class="panel-page hidden" data-panel="templates">
+            <div class="section">
+              <div class="template-heading">
+                <h2>我的空岛 · 内置模型</h2>
+                <span id="templateSummary" class="template-summary">正在读取模型数据…</span>
+              </div>
+              <div id="templateCategories" class="template-categories"></div>
+              <div id="templateList" class="template-list">
+                <div class="template-empty">正在生成模型库…</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-page hidden" data-panel="project">
+            <div class="section section-card">
+              <h2>模型 JSON</h2>
+              <div class="row">
+                <button id="exportProject">导出 JSON</button>
+                <button id="importProject">导入 JSON</button>
+              </div>
+              <input id="projectFile" class="hidden" type="file" accept="application/json,.json" />
+            </div>
+            <div class="section">
+              <h2>参考图片</h2>
+              <div class="row">
+                <button id="toggleReference">显示原图</button>
+                <button id="chooseReference">更换图片</button>
+              </div>
+              <input id="referenceFile" class="hidden" type="file" accept="image/*" />
+              <label style="margin-top:8px">透明度<input id="referenceOpacity" type="range" min="0" max="1" step="0.05" value="0.35" /></label>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span id="status">正在初始化工作台……</span>
+      <span class="shortcut-copy">V/B/X 选择/放置/拆除 · W/E/R 移动/旋转/缩放 · F 聚焦 · Delete 删除 · Ctrl/⌘+D 复制 · Ctrl/⌘+S 保存</span>
+    </footer>
+  </main>
+  <script type="module" src="./workbench.js?v=6"></script>
+</body>
+</html>
