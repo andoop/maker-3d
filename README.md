@@ -13,6 +13,14 @@
 
 ![Three.js 模型工作台界面](./docs/assets/threejs-workbench.png)
 
+## 我的空岛预览
+
+![我的空岛全景](./docs/assets/floating-island-overview.jpg)
+
+| 第一人称漫游 | 夜间空岛 |
+| --- | --- |
+| ![我的空岛第一人称漫游](./docs/assets/floating-island-first-person.jpg) | ![我的空岛夜间场景](./docs/assets/floating-island-night.jpg) |
+
 ## 快速开始
 
 ### Three.js 模型工作台
